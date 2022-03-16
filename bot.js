@@ -1,6 +1,6 @@
 const Discord = require("discord.js")
 let logger = require('winston')
-let auth = require('./auth.json')
+// let auth = require('./auth.json')
 const responses = require('./responses.json')
 
 // Configure Logger Settings
@@ -12,7 +12,7 @@ logger.level = "debug"
 
 // Initialize Bot
 const bot = new Discord.Client({
-    token: auth.token,
+    token: process.env.DISCORD_TOKEN,
     autorun: true,
     intents: ['GUILDS', 'GUILD_MESSAGES']
 })
@@ -82,4 +82,4 @@ Prepend commands with '!' to execute the following commands:
     }
 })
 
-bot.login('OTUzNzI3NTc5ODU1MTU5Mzk3.YjIyBg.x5EOJkE_FYmuLefxSIKoen9d_f8')
+bot.login(process.env.DISCORD_TOKEN)
