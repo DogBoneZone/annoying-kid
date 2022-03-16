@@ -1,0 +1,12 @@
+{
+    "name": "annoying-kid",
+    "version": "1.0",
+    "description": "A kid that says the darndest things.",
+    "main": "bot.js",
+    "author": "dogbonezone",
+    "dependencies": {
+        "discord.io": "^2.5.3",
+        "discord.js": "^13.6.0",
+        "winston": "^3.6.0"
+    }
+}
