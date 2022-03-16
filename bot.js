@@ -82,4 +82,4 @@ Prepend commands with '!' to execute the following commands:
     }
 })
 
-bot.login('OTUzNzI3NTc5ODU1MTU5Mzk3.YjIyBg.AJQ1VBYtzQ763kED3qq9VFdWwg0')
+bot.login('OTUzNzI3NTc5ODU1MTU5Mzk3.YjIyBg.x5EOJkE_FYmuLefxSIKoen9d_f8')
