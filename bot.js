@@ -12,7 +12,8 @@ logger.level = "debug"
 
 // Initialize Bot
 const bot = new Discord.Client({
-    token: process.env.DISCORD_TOKEN,
+    token: "OTUzNzI3NTc5ODU1MTU5Mzk3.YjIyBg.x5EOJkE_FYmuLefxSIKoen9d_f8",
+    // token: process.env.DISCORD_TOKEN,
     autorun: true,
     intents: ['GUILDS', 'GUILD_MESSAGES']
 })
@@ -56,11 +57,18 @@ Prepend commands with '!' to execute the following commands:
                     string.split('')[0].toUpperCase()
                 }
                 stringArray.shift()
-                stringArray.join('_')
                 message.channel.send(`
                     ${responses.deliver[Math.floor(Math.random() * responses.deliver.length)]}
-                    https://en.wikipedia.org/wiki/${stringArray}`
+                    https://en.wikipedia.org/wiki/${stringArray.join('_')}`
                 )
+                break
+
+            case 'roll':
+                stringArray.shift()
+                for (let term of stringArray) {
+                    let termArray = [...term].split('+')
+
+                }
                 break
 
             case 'alex':
@@ -81,5 +89,4 @@ Prepend commands with '!' to execute the following commands:
         }
     }
 })
-
-bot.login(process.env.DISCORD_TOKEN)
+// bot.login(process.env.DISCORD_TOKEN)
