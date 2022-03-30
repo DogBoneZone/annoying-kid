@@ -22,18 +22,11 @@ bot.once('ready', function (evt) {
     logger.info('Annoying Kid has Arrived.')
 })
 
-bot.on('message', message => {
-    console.log(message)
+// Functions
 
-    if (message.content.substring(0, 1) === '!') {
-        let stringArray = message.content.substring(1).split(' ')
-        let cmd = stringArray[0]
-
-        switch (cmd) {
-            case 'help':
-                message.channel.send(
-                    `
-Ugh, I can't believe you don't even know my commands yet, jfc. Just look below and see what I have to offer.
+function helpMenu(message) {
+    message.channel.send(
+`Ugh, I can't believe you don't even know my commands yet, jfc. Just look below and see what I have to offer.
 
 Prepend commands with '!' to execute the following commands:
 - **!help**: You're here already.
@@ -42,9 +35,18 @@ Prepend commands with '!' to execute the following commands:
 - **!alex**: Bitch ass Alex
 - **!jerry**: Bitch ass Jerry
 - **!gabe**: Bitch ass Gabe
-- **!slug**: Pimp Nick
-                    `
-                )
+- **!slug**: Pimp Nick`)
+}
+
+bot.on('message', message => {
+
+    if (message.content.substring(0, 1) === '!') {
+        let stringArray = message.content.substring(1).split(' ')
+        let cmd = stringArray[0]
+
+        switch (cmd) {
+            case 'help':
+                helpMenu(message)
                 break
 
             case 'insult':
