@@ -45,6 +45,8 @@ Prepend commands with '!' to execute the following commands:
 - **!insult**: Receive an insult from me. 
 - **!wiki [thing you want to search for]**: I pull up a wikipedia page for your lazy ass.
 - **!reminder**: Set a reminder or event using the following format; 'Name or description of event' :: '01/31/2022'
+-**!reminders**: Outputs reminders that are coming up in the current month
+-**!--reminder**: Delete a reminder entry (WIP for now, still not finished)
 - **!alex**: Bitch ass Alex
 - **!jerry**: Bitch ass Jerry
 - **!gabe**: Bitch ass Gabe
