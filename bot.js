@@ -1,4 +1,3 @@
-const reminders = require('./events.json')
 const Discord = require("discord.js")
 let logger = require('winston')
 const responses = require('./responses.json')
@@ -52,8 +51,8 @@ function wikiSearch(stringArray, message) {
     )
 }
 
-function postReminder(message) {
-    return message.channel.send(`Reminder: Happening`)
+function postReminder(stringArray, message) {
+    return message.channel.send(`Reminder Function is a work in progress currently.`)
 }
 
 // Execute functions based on message command
@@ -93,7 +92,7 @@ bot.on('message', message => {
                 break
 
             case 'reminder':
-                postReminder(message)
+                postReminder(stringArray, message)
                 break
         }
     }
