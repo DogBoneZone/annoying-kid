@@ -54,8 +54,7 @@ function wikiSearch(stringArray, message) {
 function postReminder(stringArray, message) {
     let eventName = stringArray[0]
     let eventContent = stringArray.shift().join(' ')
-    console.log(eventName, eventContent)
-    return message.channel.send(`${eventName}: ${eventContent}`)
+    return message.channel.send(eventName)
 }
 
 // Execute functions based on message command
