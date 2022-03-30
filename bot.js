@@ -23,7 +23,6 @@ bot.once('ready', function (evt) {
 })
 
 // Functions
-
 function helpMenu(message) {
     message.channel.send(
 `Ugh, I can't believe you don't even know my commands yet, jfc. Just look below and see what I have to offer.
@@ -38,6 +37,26 @@ Prepend commands with '!' to execute the following commands:
 - **!slug**: Pimp Nick`)
 }
 
+function insultOutput(message) {
+    message.channel.send(responses.insult[Math.floor(Math.random() * responses.insult.length)])
+}
+
+function wikiSearch(message) {
+    for (let string of stringArray) {
+        string.split('')[0].toUpperCase()
+    }
+    stringArray.shift()
+    message.channel.send(`
+        ${responses.deliver[Math.floor(Math.random() * responses.deliver.length)]}
+        https://en.wikipedia.org/wiki/${stringArray.join('_')}`
+    )
+}
+
+function postReminder(message) {
+    message.channel.send(`Reminder: Happening`)
+}
+
+// Execute functions based on message command
 bot.on('message', message => {
 
     if (message.content.substring(0, 1) === '!') {
@@ -50,18 +69,11 @@ bot.on('message', message => {
                 break
 
             case 'insult':
-                message.channel.send(responses.insult[Math.floor(Math.random() * responses.insult.length)])
+                insultOutput(message)
                 break
 
             case 'wiki':
-                for (let string of stringArray) {
-                    string.split('')[0].toUpperCase()
-                }
-                stringArray.shift()
-                message.channel.send(`
-                    ${responses.deliver[Math.floor(Math.random() * responses.deliver.length)]}
-                    https://en.wikipedia.org/wiki/${stringArray.join('_')}`
-                )
+                wikiSearch(message)
                 break
 
             case 'alex':
@@ -81,7 +93,7 @@ bot.on('message', message => {
                 break
 
             case 'reminder':
-                message.channel.send(`${reminders[0].name} is happening on ${reminders[0].date}`)
+                postReminder(message)
                 break
         }
     }
