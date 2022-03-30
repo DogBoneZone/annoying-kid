@@ -88,7 +88,7 @@ Prepend commands with '!' to execute the following commands:
 
             case 'reminder':
                 for (let reminder of reminders) {
-                    console.log(reminder.name, reminder.date)
+                    message.channel.send({reminder})
                 }
         }
     }
