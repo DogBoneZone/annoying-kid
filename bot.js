@@ -62,14 +62,6 @@ Prepend commands with '!' to execute the following commands:
                 )
                 break
 
-            case 'roll':
-                stringArray.shift()
-                for (let term of stringArray) {
-                    let termArray = [...term].split('+')
-
-                }
-                break
-
             case 'alex':
                 message.channel.send({files: ['images/alex_sombrero.png']})
                 break
