@@ -5,9 +5,12 @@ const responses = require('./responses.json')
 
 // Update AWS Connection Details
 AWS.config.update({
-    region: process.env.AWS_DEFAULT_REGION,
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_KEY
+    // region: process.env.AWS_DEFAULT_REGION,
+    // accessKeyId: process.env.AWS_ACCESS_KEY,
+    // secretAccessKey: process.env.AWS_SECRET_KEY
+    region: 'us-west-1',
+    accessKeyId: 'AKIA4B52D4IMKIQKFCUA',
+    secretAccessKey: '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'
 })
 
 // Create the service used to connect to DynamoDB
@@ -41,6 +44,7 @@ Prepend commands with '!' to execute the following commands:
 - **!help**: You're here already.
 - **!insult**: Receive an insult from me. 
 - **!wiki [thing you want to search for]**: I pull up a wikipedia page for your lazy ass.
+- **!reminder**: Set a reminder or event using the following format; 'Name or description of event' :: '01/31/2022'
 - **!alex**: Bitch ass Alex
 - **!jerry**: Bitch ass Jerry
 - **!gabe**: Bitch ass Gabe
@@ -67,27 +71,83 @@ function postReminder(stringArray, message) {
     let eventContent = stringArray.splice(1, index).join(' ')
     let eventDate = stringArray[stringArray.length - 1]
 
-    // Setup the parameters required to save to Dynamo
+    // Return message if date is incorrect format
+    let dateArray = [...eventDate]
+    if (dateArray.length != 10) {return message.channel.send('The date must be in standard short format: MM/DD/YYYY')}
+    for (let index = 0; index <= 9; index++) {
+        switch (index) {
+            case 0:
+            case 1:
+            case 3:
+            case 4:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+                if (typeof Number(dateArray[index]) != 'number') {return message.channel.send('The date must be in standard short format: MM/DD/YYYY')}
+                break
+
+            case 2:
+            case 5:
+                if (dateArray[index] != '/') {return message.channel.send('The date must be in standard short format: MM/DD/YYYY')}
+        }
+    }
+
+    // Setup the parameters required to save to DynamoDB
     const params = {
         TableName: 'annoying-kid-memory',
         Item: {
             // Use Date.now() to generate a new unique value
             id: Date.now().toString(),
+            eventDate: eventDate,
+            monthVal: Number([...eventDate].splice(0, 2).join('')),
             // info is used to save actual data
-            info: {eventContent: eventContent, eventDate: eventDate}
+            content: eventContent
         }
     }
 
     docClient.put(params, (error) => {
         if (!error) {
-            return channel.message.send(`Event successfully saved.`)
+            return message.channel.send(`Event successfully saved.`)
         } else {
-            throw "Unable to save record, error" + error
+            throw "I couldn't save this event for some reason... probably because I was programmed by an idiot." + error
         }
     })
     
     // Send the info as a message
     message.channel.send(`${eventContent}: ${eventDate}`)
+}
+
+function viewReminders(message) {
+    
+    const params = {
+        TableName: 'annoying-kid-memory',
+        FilterExpression: 'monthVal = :this_month',
+        ExpressionAttributeValues: {':this_month': new Date().getMonth() + 1}
+    }
+
+    console.log(params)
+
+    docClient.scan(params, (error, data) => {
+        if (!error) {
+            if (!data) {return message.channel.send('There are no upcoming events this month.')}
+            else {
+                let entries = []
+                data.Items.forEach(item => {
+                    entries.push(`${[...item.eventDate].splice(0, 5).join('')}: ${item.content}`)
+                })
+                let messageContent = `This Month's Events: \n${entries.join("\n")}`
+
+                message.channel.send(messageContent)
+            }
+        } else {
+            throw "I couldn't hack it.. something is up with the pull request from the database. Get Alex to solve this shit." + error
+        }
+    })
+}
+
+function deleteReminder(message) {
+    console.log("Will Delete Reminder Placeholder")
 }
 
 // Execute functions based on message command
@@ -129,6 +189,13 @@ bot.on('message', message => {
             case 'reminder':
                 postReminder(stringArray, message)
                 break
+
+            case 'reminders':
+                viewReminders(message)
+                break
+
+            case '--reminder':
+                deleteReminder(message)
         }
     }
 })
