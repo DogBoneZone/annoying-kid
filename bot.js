@@ -79,7 +79,7 @@ Prepend commands with '!' to execute the following commands:
                 break
 
             case 'reminder':
-                message.channel.send('Reminder Function is happening')
+                message.channel.send(`${reminders[0].name} is happening on ${reminders[0].date}`)
                 break
         }
     }
