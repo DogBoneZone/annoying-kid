@@ -41,7 +41,7 @@ function insultOutput(message) {
     return message.channel.send(responses.insult[Math.floor(Math.random() * responses.insult.length)])
 }
 
-function wikiSearch(message) {
+function wikiSearch(stringArray, message) {
     for (let string of stringArray) {
         string.split('')[0].toUpperCase()
     }
@@ -73,7 +73,7 @@ bot.on('message', message => {
                 break
 
             case 'wiki':
-                wikiSearch(message)
+                wikiSearch(stringArray, message)
                 break
 
             case 'alex':
