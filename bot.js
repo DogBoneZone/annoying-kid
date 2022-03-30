@@ -1,3 +1,4 @@
+const reminders = require('./events.json')
 const Discord = require("discord.js")
 let logger = require('winston')
 const responses = require('./responses.json')
@@ -15,7 +16,7 @@ const bot = new Discord.Client({
     autorun: true,
     intents: ['GUILDS', 'GUILD_MESSAGES']
 })
-0
+
 bot.once('ready', function (evt) {
     logger.info('Connected')
     logger.info('Annoying Kid has Arrived.')
@@ -84,6 +85,11 @@ Prepend commands with '!' to execute the following commands:
             case 'slug':
                 message.channel.send({files: ['images/slug_doubtful.png']})
                 break
+
+            case 'reminder':
+                for (let reminder of reminders) {
+                    console.log(reminder.name, reminder.date)
+                }
         }
     }
 })
