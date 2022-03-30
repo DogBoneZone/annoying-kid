@@ -79,9 +79,7 @@ Prepend commands with '!' to execute the following commands:
                 break
 
             case 'reminder':
-                for (let reminder of reminders) {
-                    message.channel.send({reminder})
-                }
+                message.channel.send(reminders[0].name, reminders[0].date)
                 break
         }
     }
