@@ -1,6 +1,17 @@
+const AWS = require('aws-sdk')
 const Discord = require("discord.js")
 let logger = require('winston')
 const responses = require('./responses.json')
+
+// Update AWS Connection Details
+AWS.config.update({
+    region: process.env.AWS_DEFAULT_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY
+})
+
+// Create the service used to connect to DynamoDB
+const docClient = new AWS.DynamoDB.DocumentClient()
 
 // Configure Logger Settings
 logger.remove(logger.transports.Console)
@@ -52,9 +63,31 @@ function wikiSearch(stringArray, message) {
 }
 
 function postReminder(stringArray, message) {
-    let eventName = stringArray[1]
-    let eventContent = stringArray.splice(2, 0).join(' ')
-    return message.channel.send(`${eventName}: ${eventContent}`)
+    let index = stringArray.indexOf('::') - 1
+    let eventContent = stringArray.splice(1, index).join(' ')
+    let eventDate = stringArray[stringArray.length - 1]
+
+    // Setup the parameters required to save to Dynamo
+    const params = {
+        TableName: 'annoying-kid-memory',
+        Item: {
+            // Use Date.now() to generate a new unique value
+            id: Date.now().toString(),
+            // info is used to save actual data
+            info: {eventContent: eventContent, eventDate: eventDate}
+        }
+    }
+
+    docClient.put(params, (error) => {
+        if (!error) {
+            return channel.message.send(`Event successfully saved.`)
+        } else {
+            throw "Unable to save record, error" + error
+        }
+    })
+    
+    // Send the info as a message
+    message.channel.send(`${eventContent}: ${eventDate}`)
 }
 
 // Execute functions based on message command
@@ -100,4 +133,5 @@ bot.on('message', message => {
     }
 })
 
-bot.login(process.env.DISCORD_TOKEN)
+bot.login('OTUzNzI3NTc5ODU1MTU5Mzk3.YjIyBg.D7XM0zeqZJp0yTbkXapTXS5T_RA')
+// bot.login(process.env.DISCORD_TOKEN)
