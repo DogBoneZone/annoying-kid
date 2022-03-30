@@ -133,5 +133,4 @@ bot.on('message', message => {
     }
 })
 
-bot.login('OTUzNzI3NTc5ODU1MTU5Mzk3.YjIyBg.D7XM0zeqZJp0yTbkXapTXS5T_RA')
-// bot.login(process.env.DISCORD_TOKEN)
+bot.login(process.env.DISCORD_TOKEN)
