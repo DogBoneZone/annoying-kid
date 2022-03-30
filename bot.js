@@ -24,7 +24,7 @@ bot.once('ready', function (evt) {
 
 // Functions
 function helpMenu(message) {
-    message.channel.send(
+    return message.channel.send(
 `Ugh, I can't believe you don't even know my commands yet, jfc. Just look below and see what I have to offer.
 
 Prepend commands with '!' to execute the following commands:
@@ -38,7 +38,7 @@ Prepend commands with '!' to execute the following commands:
 }
 
 function insultOutput(message) {
-    message.channel.send(responses.insult[Math.floor(Math.random() * responses.insult.length)])
+    return message.channel.send(responses.insult[Math.floor(Math.random() * responses.insult.length)])
 }
 
 function wikiSearch(message) {
@@ -46,14 +46,14 @@ function wikiSearch(message) {
         string.split('')[0].toUpperCase()
     }
     stringArray.shift()
-    message.channel.send(`
+    return message.channel.send(`
         ${responses.deliver[Math.floor(Math.random() * responses.deliver.length)]}
         https://en.wikipedia.org/wiki/${stringArray.join('_')}`
     )
 }
 
 function postReminder(message) {
-    message.channel.send(`Reminder: Happening`)
+    return message.channel.send(`Reminder: Happening`)
 }
 
 // Execute functions based on message command
