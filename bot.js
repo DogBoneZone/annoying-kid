@@ -5,12 +5,9 @@ const responses = require('./responses.json')
 
 // Update AWS Connection Details
 AWS.config.update({
-    // region: process.env.AWS_DEFAULT_REGION,
-    // accessKeyId: process.env.AWS_ACCESS_KEY,
-    // secretAccessKey: process.env.AWS_SECRET_KEY
-    region: 'us-west-1',
-    accessKeyId: 'AKIA4B52D4IMKIQKFCUA',
-    secretAccessKey: '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'
+    region: process.env.AWS_DEFAULT_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY
 })
 
 // Create the service used to connect to DynamoDB
