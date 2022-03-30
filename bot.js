@@ -52,7 +52,9 @@ function wikiSearch(stringArray, message) {
 }
 
 function postReminder(stringArray, message) {
-    return message.channel.send(stringArray[0])
+    let eventName = stringArray[1]
+    // let eventContent = stringArray.shift().join(' ')
+    return message.channel.send(eventName)
 }
 
 // Execute functions based on message command
