@@ -90,6 +90,7 @@ Prepend commands with '!' to execute the following commands:
                 for (let reminder of reminders) {
                     message.channel.send({reminder})
                 }
+                break
         }
     }
 })
