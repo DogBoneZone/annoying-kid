@@ -172,10 +172,13 @@ function deleteReminder(message) {
                     })
                 }
             })
-            message.channel.send(`Deleted ${itemsDeleted} past due reminders.`)
+            itemsDeleted != 0 ? message.channel.send(`Deleted ${itemsDeleted} past due reminders.`) : message.channel.send('There are no past due reminders to delete.')
         }
 
-        else {throw error}
+        else {
+            message.channel.send("Something went wrong, I couldn't delete any of this shit. Get Alex to fix my dumbass code.")
+            throw error
+        }
     })
 }
 
