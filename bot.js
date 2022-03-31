@@ -109,7 +109,6 @@ function postReminder(stringArray, message) {
         if (!error) {
             return message.channel.send(`Event successfully saved.`)
         } else {
-            console.log(error)
             return message.channel.send("I couldn't save this event for some reason... probably because I was programmed by an idiot.")
         }
     })
@@ -125,8 +124,6 @@ function viewReminders(message) {
         FilterExpression: 'monthVal = :this_month',
         ExpressionAttributeValues: {':this_month': new Date().getMonth() + 1}
     }
-
-    console.log(params)
 
     docClient.scan(params, (error, data) => {
         if (!error) {
@@ -157,7 +154,6 @@ function deleteReminder(message) {
 
             let itemsDeleted = 0
             data.Items.forEach(item => {
-                itemsDeleted = itemsDeleted + 1
                 let itemDate = new Date(item.eventDate).getTime()
 
                 if (itemDate < new Date()) {
@@ -171,6 +167,7 @@ function deleteReminder(message) {
                             message.channel.send("Something went wrong, I couldn't delete any of this shit. Get Alex to fix my dumbass code.")
                             throw error
                         }
+                        itemsDeleted = itemsDeleted + 1
                     })
                 }
             })
