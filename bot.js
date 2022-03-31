@@ -68,7 +68,7 @@ function wikiSearch(stringArray, message) {
 
 function postReminder(stringArray, message) {
     let index = stringArray.indexOf('::') - 1
-    if (index == -1) {return message.channel.send('Your reminder entry must use the format <Reminder content> :: MM/DD/YYY')}
+    if (index <= -1) {return message.channel.send('Your reminder entry must use the format <Reminder content> :: MM/DD/YYY')}
     const eventContent = stringArray.splice(1, index).join(' ')
     const eventDate = stringArray[stringArray.length - 1]
 
