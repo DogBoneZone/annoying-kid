@@ -32,6 +32,7 @@ bot.once('ready', function (evt) {
     logger.info('Annoying Kid has Arrived.')
 })
 
+
 // Functions
 function helpMenu(message) {
     return message.channel.send(
@@ -43,7 +44,7 @@ Prepend commands with '!' to execute the following commands:
 - **!wiki [thing you want to search for]**: I pull up a wikipedia page for your lazy ass.
 - **!reminder**: Set a reminder or event using the following format; 'Name or description of event' :: '01/31/2022'
 -**!reminders**: Outputs reminders that are coming up in the current month
--**!--reminder**: Delete a reminder entry (WIP for now, still not finished)
+-**!-reminder**: Delete all past due reminders
 - **!alex**: Bitch ass Alex
 - **!jerry**: Bitch ass Jerry
 - **!gabe**: Bitch ass Gabe
@@ -67,28 +68,25 @@ function wikiSearch(stringArray, message) {
 
 function postReminder(stringArray, message) {
     let index = stringArray.indexOf('::') - 1
-    let eventContent = stringArray.splice(1, index).join(' ')
-    let eventDate = stringArray[stringArray.length - 1]
+    const eventContent = stringArray.splice(1, index).join(' ')
+    const eventDate = stringArray[stringArray.length - 1]
+
+    const year = Number([...eventDate].splice(6, 4).join(''))
+    const month = Number([...eventDate].splice(0, 2).join(''))
+    const day = Number([...eventDate].splice(3, 2).join(''))
+
+    if (!year||!month||!day) {return message.channel.send('The date must be in standard short format: MM/DD/YYYY')}
 
     // Return message if date is incorrect format
-    let dateArray = [...eventDate]
-    if (dateArray.length != 10) {return message.channel.send('The date must be in standard short format: MM/DD/YYYY')}
+    if ([...eventDate].length != 10) {return message.channel.send('The date must be in standard short format: MM/DD/YYYY')}
+    if (new Date(eventDate, 23, 59, 0, 0) < new Date()) {return message.channel.send('The reminder cannot be set in the past, dumbass. How would I remind you otherwise?')}
+
+    // Check each entry into the 
     for (let index = 0; index <= 9; index++) {
         switch (index) {
-            case 0:
-            case 1:
-            case 3:
-            case 4:
-            case 6:
-            case 7:
-            case 8:
-            case 9:
-                if (typeof Number(dateArray[index]) != 'number') {return message.channel.send('The date must be in standard short format: MM/DD/YYYY')}
-                break
-
             case 2:
             case 5:
-                if (dateArray[index] != '/') {return message.channel.send('The date must be in standard short format: MM/DD/YYYY')}
+                if ([...eventDate][index] != '/') {return message.channel.send('The date must be in standard short format: MM/DD/YYYY')}
         }
     }
 
@@ -99,8 +97,10 @@ function postReminder(stringArray, message) {
             // Use Date.now() to generate a new unique value
             id: Date.now().toString(),
             eventDate: eventDate,
-            monthVal: Number([...eventDate].splice(0, 2).join('')),
-            // info is used to save actual data
+            dateString: new Date(year, month, day, 23, 59, 0, 0).toString(),
+            monthVal: month,
+            dateVal: day,
+            yearVal: year,
             content: eventContent
         }
     }
@@ -109,7 +109,8 @@ function postReminder(stringArray, message) {
         if (!error) {
             return message.channel.send(`Event successfully saved.`)
         } else {
-            throw "I couldn't save this event for some reason... probably because I was programmed by an idiot." + error
+            console.log(error)
+            return message.channel.send("I couldn't save this event for some reason... probably because I was programmed by an idiot.")
         }
     })
     
@@ -146,7 +147,64 @@ function viewReminders(message) {
 }
 
 function deleteReminder(message) {
-    console.log("Will Delete Reminder Placeholder")
+    const params = {
+        TableName: 'annoying-kid-memory'
+    }
+
+    docClient.scan(params, (error, data) => {
+        if (!error) {
+            if (!data) return
+
+            let itemsDeleted = 0
+            data.Items.forEach(item => {
+                itemsDeleted = itemsDeleted + 1
+                let itemDate = new Date(item.eventDate).getTime()
+
+                if (itemDate < new Date()) {
+                    const parameters = {
+                        TableName: 'annoying-kid-memory',
+                        Key: {id: item.id, eventDate: item.eventDate}
+                    }
+
+                    docClient.delete(parameters, (error, data) => {
+                        if (error) {
+                            message.channel.send("Something went wrong, I couldn't delete any of this shit. Get Alex to fix my dumbass code.")
+                            throw error
+                        }
+                    })
+                }
+            })
+            message.channel.send(`Deleted ${itemsDeleted} past due reminders.`)
+        }
+
+        else {throw error}
+    })
+}
+
+function alertReminder() {
+    const params = {
+        TableName: 'annoying-kid-memory',
+        FilterExpression: 'monthVal = :this_month AND dateVal = :this_date',
+        ExpressionAttributeValues: {':this_date': new Date().getDate(), ':this_month': new Date().getMonth() + 1}
+    }
+
+    docClient.scan(params, (error, data) => {
+        const channel = bot.channels.cache.get('371735260523921441')
+        if (!error) {
+            if (!data) {return channel.send('There are no reminders for today.')}
+
+            // Go through entries and output today's reminders
+            let entries = []
+            data.Items.forEach(entry => {
+                entries.push(`${entry.eventDate}: ${entry.content}`)
+            })
+            channel.send(`Hey! Today, this shit is going down: \n ${entries.join('\n')}`)
+        } 
+        
+        else {
+            return channel.send(`I coudn't hack it. Error: ${error}`)
+        }
+    })
 }
 
 // Execute functions based on message command
@@ -193,10 +251,18 @@ bot.on('message', message => {
                 viewReminders(message)
                 break
 
-            case '--reminder':
+            case '-reminder':
                 deleteReminder(message)
         }
     }
 })
 
 bot.login(process.env.DISCORD_TOKEN)
+
+// Alert of Reminders at 9am every day
+let now = new Date()
+let millisTill9 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0, 0, 0) - now
+let millisTillMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 0, 0) - now
+if (millisTill9 < 0) {millisTill9 += 86400000} // It's after 9am today, try again tomorrow
+setTimeout(() => alertReminder(), millisTill9)
+setTimeout(() => deleteReminder(), millisTillMidnight)
