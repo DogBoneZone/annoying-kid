@@ -231,8 +231,7 @@ function alertTimedReminder(today) {
             for (let reminder of data.Items) {
                 let currentTime = today.getTime()
                 if (reminder.timeVal >= (currentTime - 900000) && reminder.timeVal <= (currentTime + 300000)) {
-                    // const channel = bot.channels.cache.get('371735260523921441')
-                    const channel = bot.channels.cache.get('953734770129531001')
+                    const channel = bot.channels.cache.get('371735260523921441')
                     channel.send(`EVENT REMINDER: \n${reminder.content} @ ${new Date(reminder.timeVal).toString()}`)
                 }
             }
