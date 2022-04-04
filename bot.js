@@ -42,7 +42,7 @@ Prepend commands with '!' to execute the following commands:
 - **!help**: You're here already.
 - **!insult**: Receive an insult from me. 
 - **!wiki [thing you want to search for]**: I pull up a wikipedia page for your lazy ass.
-- **!reminder**: Set a reminder or event using the following format; 'Name or description of event' :: '01/31/2022'
+- **!reminder**: Set a reminder or event using the following format; <Event Name> :: <MM/DD/YYYY> <optional => 7:30 PM>
 -**!reminders**: Outputs reminders that are coming up in the current month
 -**!-reminder**: Delete all past due reminders
 - **!alex**: Bitch ass Alex
@@ -67,19 +67,26 @@ function wikiSearch(stringArray, message) {
 }
 
 function postReminder(stringArray, message) {
-    let index = stringArray.indexOf('::') - 1
-    if (index <= -1) {return message.channel.send('Your reminder entry must use the format <Reminder content> :: MM/DD/YYY')}
-    const eventContent = stringArray.splice(1, index).join(' ')
-    const eventDate = stringArray[stringArray.length - 1]
+    let index = stringArray.indexOf('::')
+    if (index <= -1) {return message.channel.send('Your reminder entry must use the format <Reminder content> :: MM/DD/YYYY')}
+    const eventContent = stringArray.slice(1, index).join(' ')
+    const eventDate = stringArray[index + 1]
 
-    const year = Number([...eventDate].splice(6, 4).join(''))
-    const month = Number([...eventDate].splice(0, 2).join(''))
-    const day = Number([...eventDate].splice(3, 2).join(''))
+    const timeModifier = stringArray[stringArray.indexOf(eventDate) + 2] === 'PM' ? 12 : 0
+    let timeArray = stringArray.length - (index + 1) > 1 ? [...stringArray[stringArray.indexOf(eventDate) + 1]] : ['7', ':', '3', '0']
+    let timeIndex = timeArray.indexOf(':') || undefined
+    let hour = Number(timeArray.slice(0, timeIndex).join('')) + timeModifier || 7
+    let minutes = Number(timeArray.slice(timeIndex + 1).join('')) || 30
 
-    if (!year||!month||!day) {return message.channel.send('The date must be in standard short format: MM/DD/YYYY')}
+    const year = Number([...eventDate].slice(6).join(''))
+    const day = Number([...eventDate].slice(3, 5).join(''))
+    const month = Number([...eventDate].slice(0, 2).join('')) - 1
+    const time = new Date(year, month, day, hour, minutes, 0, 0).getTime()
+
+    if (!year||!month||!day) {return message.channel.send('The date must be in standard short format: MM/DD/YYYY 1')}
 
     // Return message if date is incorrect format
-    if ([...eventDate].length != 10) {return message.channel.send('The date must be in standard short format: MM/DD/YYYY')}
+    if ([...eventDate].length < 10) {return message.channel.send('The date must be in standard short format: MM/DD/YYYY 2')}
     if (new Date(eventDate, 23, 59, 0, 0) < new Date()) {return message.channel.send('The reminder cannot be set in the past, dumbass. How would I remind you otherwise?')}
 
     // Check each entry into the 
@@ -87,7 +94,7 @@ function postReminder(stringArray, message) {
         switch (index) {
             case 2:
             case 5:
-                if ([...eventDate][index] != '/') {return message.channel.send('The date must be in standard short format: MM/DD/YYYY')}
+                if ([...eventDate][index] != '/') {return message.channel.send('The date must be in standard short format: MM/DD/YYYY 3')}
         }
     }
 
@@ -99,9 +106,10 @@ function postReminder(stringArray, message) {
             id: Date.now().toString(),
             eventDate: eventDate,
             dateString: new Date(year, month, day, 23, 59, 0, 0).toString(),
-            monthVal: month,
+            monthIndex: month,
             dateVal: day,
             yearVal: year,
+            timeVal: time,
             content: eventContent
         }
     }
@@ -122,8 +130,8 @@ function viewReminders(message) {
     
     const params = {
         TableName: 'annoying-kid-memory',
-        FilterExpression: 'monthVal = :this_month',
-        ExpressionAttributeValues: {':this_month': new Date().getMonth() + 1}
+        FilterExpression: 'monthIndex = :this_month',
+        ExpressionAttributeValues: {':this_month': new Date().getMonth()}
     }
 
     docClient.scan(params, (error, data) => {
@@ -172,7 +180,7 @@ function deleteReminder(message) {
                     })
                 }
             })
-            itemsDeleted != 0 ? message.channel.send(`Deleted ${itemsDeleted} past due reminders.`) : message.channel.send('There are no past due reminders to delete.')
+            itemsDeleted > 0 ? message.channel.send(`Deleted ${itemsDeleted} past due reminders.`) : message.channel.send('There are no past due reminders to delete.')
         }
 
         else {
@@ -185,26 +193,51 @@ function deleteReminder(message) {
 function alertReminder() {
     const params = {
         TableName: 'annoying-kid-memory',
-        FilterExpression: 'monthVal = :this_month AND dateVal = :this_date',
+        FilterExpression: 'monthIndex = :this_month AND dateVal = :this_date',
         ExpressionAttributeValues: {':this_date': new Date().getDate(), ':this_month': new Date().getMonth() + 1}
     }
 
     docClient.scan(params, (error, data) => {
         const channel = bot.channels.cache.get('371735260523921441')
         if (!error) {
-            if (!data) {return channel.send('There are no reminders for today.')}
+            if (!data) {return channel.send('Some shit is up with my scan operation on DynamoDB. I was unable to parse data. Ask bitch ass Alex to look into this.')}
 
             // Go through entries and output today's reminders
             let entries = []
             data.Items.forEach(entry => {
                 entries.push(`${entry.eventDate}: ${entry.content}`)
             })
-            channel.send(`Hey! Today, this shit is going down: \n ${entries.join('\n')}`)
+            if (entries.length > 0) return channel.send(`Hey! Today, this shit is going down: \n ${entries.join('\n')}`)
         } 
         
         else {
             return channel.send(`I coudn't hack it. Error: ${error}`)
         }
+    })
+}
+
+function alertTimedReminder(today) {
+    // timeVal is now as milliseconds, so need to run query for item events with timeVals 15 minutes (900,000ms) from now
+    const params = {
+        TableName: 'annoying-kid-memory',
+        FilterExpression: "dateVal = :date AND monthIndex = :month",
+        ExpressionAttributeValues: {":date": today.getDate(), ":month": today.getMonth()}
+    }
+
+    docClient.scan(params, (error, data) => {
+        if (!error) {
+            if (data.Items.length === 0) return
+
+            for (let reminder of data.Items) {
+                let currentTime = today.getTime()
+                if (reminder.timeVal >= (currentTime - 900000) && reminder.timeVal <= (currentTime + 300000)) {
+                    // const channel = bot.channels.cache.get('371735260523921441')
+                    const channel = bot.channels.cache.get('953734770129531001')
+                    channel.send(`EVENT REMINDER: \n${reminder.content} @ ${new Date(reminder.timeVal).toString()}`)
+                }
+            }
+        }
+        if (error) {throw error}
     })
 }
 
@@ -260,10 +293,14 @@ bot.on('message', message => {
 
 bot.login(process.env.DISCORD_TOKEN)
 
-// Alert of Reminders at 9am every day
+// Alert of Reminders every day
 let now = new Date()
-let millisTill9 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0, 0, 0) - now
-let millisTillMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 0, 0) - now
+let millisTill9 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0, 0) - now
 if (millisTill9 < 0) {millisTill9 += 86400000} // It's after 9am today, try again tomorrow
+
+let millisTillMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 0, 0) - now
+if (millisTillMidnight < 0) {millisTill9 += 86400000} // It's after midnight today, try again tomorrow
+
+setTimeout(() => alertTimedReminder(now), 180000)
 setTimeout(() => alertReminder(), millisTill9)
 setTimeout(() => deleteReminder(), millisTillMidnight)
