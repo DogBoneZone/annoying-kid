@@ -5,12 +5,9 @@ const responses = require('./responses.json')
 
 // Update AWS Connection Details
 AWS.config.update({
-    // region: process.env.AWS_DEFAULT_REGION,
-    // accessKeyId: process.env.AWS_ACCESS_KEY,
-    // secretAccessKey: process.env.AWS_SECRET_KEY
-    region: 'us-west-1',
-    accessKeyId: 'AKIA4B52D4IMBFFHJJMT',
-    secretAccessKey: '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'
+    region: process.env.AWS_DEFAULT_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY
 })
 
 // Create the service used to connect to DynamoDB
@@ -293,8 +290,7 @@ bot.on('message', message => {
     }
 })
 
-bot.login('OTUzNzI3NTc5ODU1MTU5Mzk3.YjIyBg.8HL5E6ah1vrAPNdx-h1JtcoKC3s')
-// bot.login(process.env.DISCORD_TOKEN)
+bot.login(process.env.DISCORD_TOKEN)
 
 // Alert of Reminders every day
 let now = new Date()
