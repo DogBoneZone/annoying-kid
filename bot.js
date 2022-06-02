@@ -5,9 +5,12 @@ const responses = require('./responses.json')
 
 // Update AWS Connection Details
 AWS.config.update({
-    region: process.env.AWS_DEFAULT_REGION,
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_KEY
+    // region: process.env.AWS_DEFAULT_REGION,
+    // accessKeyId: process.env.AWS_ACCESS_KEY,
+    // secretAccessKey: process.env.AWS_SECRET_KEY
+    region: 'us-west-1',
+    accessKeyId: 'AKIA4B52D4IMBFFHJJMT',
+    secretAccessKey: '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'
 })
 
 // Create the service used to connect to DynamoDB
@@ -105,7 +108,7 @@ function postReminder(stringArray, message) {
             // Use Date.now() to generate a new unique value
             id: Date.now().toString(),
             eventDate: eventDate,
-            dateString: new Date(year, month, day, 23, 59, 0, 0).toString(),
+            dateString: new Date(year, month, day, hour, minutes, 0, 0).toString(),
             monthIndex: month,
             dateVal: day,
             yearVal: year,
@@ -216,7 +219,7 @@ function alertReminder() {
     })
 }
 
-function alertTimedReminder(today) {
+async function alertTimedReminder(today) {
     // timeVal is now as milliseconds, so need to run query for item events with timeVals 15 minutes (900,000ms) from now
     const params = {
         TableName: 'annoying-kid-memory',
@@ -232,7 +235,7 @@ function alertTimedReminder(today) {
                 let currentTime = today.getTime()
                 if (reminder.timeVal >= (currentTime - 900000) && reminder.timeVal <= (currentTime + 300000)) {
                     const channel = bot.channels.cache.get('371735260523921441')
-                    channel.send(`EVENT REMINDER: \n${reminder.content} @ ${new Date(reminder.timeVal).toString()}`)
+                    return channel.send(`EVENT REMINDER: \n${reminder.content} @ ${new Date(reminder.timeVal).toString()}`)
                 }
             }
         }
@@ -290,7 +293,8 @@ bot.on('message', message => {
     }
 })
 
-bot.login(process.env.DISCORD_TOKEN)
+bot.login('OTUzNzI3NTc5ODU1MTU5Mzk3.YjIyBg.8HL5E6ah1vrAPNdx-h1JtcoKC3s')
+// bot.login(process.env.DISCORD_TOKEN)
 
 // Alert of Reminders every day
 let now = new Date()
@@ -300,6 +304,6 @@ if (millisTill9 < 0) {millisTill9 += 86400000} // It's after 9am today, try agai
 let millisTillMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 0, 0) - now
 if (millisTillMidnight < 0) {millisTill9 += 86400000} // It's after midnight today, try again tomorrow
 
-setTimeout(() => alertTimedReminder(now), 180000)
+setTimeout(() => alertTimedReminder(now), 10000)
 setTimeout(() => alertReminder(), millisTill9)
 setTimeout(() => deleteReminder(), millisTillMidnight)
