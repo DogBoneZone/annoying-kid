@@ -53,6 +53,15 @@ Prepend commands with '!' to execute the following commands:
 
 function insultOutput(message) {
     return message.channel.send(responses.insult[Math.floor(Math.random() * responses.insult.length)])
+    // Need to build a query/scan statement that finds an entry with primary key
+    // Less than or equal to a random number
+    let randomUUID = 1668656879964 / math.random()
+    const params = {
+        TableName: 'annoying-kid_insults',
+        FilterExpression: ,
+        Limit: 1
+    }
+
 }
 
 function wikiSearch(stringArray, message) {
@@ -76,6 +85,7 @@ function registerInsult(stringArray, message) {
         Item: {
             // Table Entry Object
             id: Date.now(),
+            randomNum: (math.random() * 10).toFixed(3),
             submitted_by: message.author,
             content: stringArray.slice(1).join(' ')
         }
