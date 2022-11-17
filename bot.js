@@ -76,8 +76,8 @@ function registerInsult(stringArray, message) {
         Item: {
             // Table Entry Object
             id: Date.now(),
-            submitted_by: message.author.toString(),
-            content: stringArray.slice(1).join('')
+            submitted_by: message.author,
+            content: stringArray.slice(1).join(' ')
         }
     }
 
