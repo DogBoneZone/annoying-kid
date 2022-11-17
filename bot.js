@@ -78,13 +78,12 @@ function wikiSearch(stringArray, message) {
 // message being the discord message object
 function registerInsult(stringArray, message) {
     // Setup the parameters required to save to DynamoDB
-    let randomNum = math.random()
     const params = {
         TableName: 'annoying-kid_insults',
         Item: {
             // Table Entry Object
             id: Date.now(),
-            random: randomNum,
+            random: Number(math.random()),
             submitted_by: message.author,
             content: stringArray.slice(1).join(' ')
         }
