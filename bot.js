@@ -75,7 +75,7 @@ function registerInsult(stringArray, message) {
         TableName: 'annoying-kid_insults',
         Item: {
             // Table Entry Object
-            id: Date.now().toString(),
+            id: Date.now(),
             submitted_by: message.author.toString(),
             content: stringArray.slice(1).join('')
         }
