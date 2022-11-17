@@ -83,7 +83,6 @@ function registerInsult(stringArray, message) {
         Item: {
             // Table Entry Object
             id: Date.now(),
-            random: Number(math.random()),
             submitted_by: message.author,
             content: stringArray.slice(1).join(' ')
         }
