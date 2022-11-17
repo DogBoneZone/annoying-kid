@@ -85,7 +85,10 @@ function registerInsult(stringArray, message) {
         if (!error) {
             return message.channel.send(`Insult registered, ya bitch.`)
         } else {
-            return message.channel.send("I couldn't save this insult for some reason... probably because I was programmed by an idiot.")
+            return message.channel.send(`
+                ${error}
+                I couldn't save this insult for some reason... probably because I was programmed by an idiot.`
+                )
         }
     })
 }
