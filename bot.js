@@ -71,14 +71,14 @@ function wikiSearch(stringArray, message) {
 // message being the discord message object
 function registerInsult(stringArray, message) {
     // Setup the parameters required to save to DynamoDB
-    return message.channel.send(stringArray[0].toString(), message.author.toString())
+    return message.channel.send(stringArray[0].toString(), message.user.toString())
     const params = {
         TableName: 'annoying-kid_insults',
         Item: {
             // Table Entry Object
             id: Date.now().toString(),
             submitted_by: message.author,
-            content: stringArray.substring(1).join('')
+            content: stringArray.slice(1).join('')
         }
     }
 
