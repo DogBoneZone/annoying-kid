@@ -58,7 +58,6 @@ function insultOutput(message) {
     let randomUUID = 1668656879964 / math.random()
     const params = {
         TableName: 'annoying-kid_insults',
-        FilterExpression: ,
         Limit: 1
     }
 
