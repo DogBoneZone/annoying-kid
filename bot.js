@@ -55,11 +55,11 @@ function insultOutput(message) {
     return message.channel.send(responses.insult[Math.floor(Math.random() * responses.insult.length)])
     // Need to build a query/scan statement that finds an entry with primary key
     // Less than or equal to a random number
-    let randomUUID = 1668656879964 / math.random()
-    const params = {
-        TableName: 'annoying-kid_insults',
-        Limit: 1
-    }
+    // let randomUUID = 1668656879964 / math.random()
+    // const params = {
+    //     TableName: 'annoying-kid_insults',
+    //     Limit: 1
+    // }
 
 }
 
