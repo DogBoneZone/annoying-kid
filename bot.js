@@ -66,6 +66,33 @@ function wikiSearch(stringArray, message) {
     )
 }
 
+// New Functions for Adding/Deleting Insults from Database
+// stringArray being an array of each word/string inside of the message content
+// message being the discord message object
+function registerInsult(stringArray, message) {
+    // Setup the parameters required to save to DynamoDB
+    const params = {
+        TableName: 'annoying-kid_insults',
+        Item: {
+            // Table Entry Object
+            id: Date.now().toString(),
+            submitted_by: message.author,
+            content: stringArray.substring(1).join('')
+        }
+    }
+
+    docClient.put(params, (error) => {
+        if (!error) {
+            return message.channel.send(`Insult registered, ya bitch.`)
+        } else {
+            return message.channel.send("I couldn't save this insult for some reason... probably because I was programmed by an idiot.")
+        }
+    })
+}
+
+
+
+
 function postReminder(stringArray, message) {
     let index = stringArray.indexOf('::')
     if (index <= -1) {return message.channel.send('Your reminder entry must use the format <Reminder content> :: MM/DD/YYYY')}
@@ -258,6 +285,10 @@ bot.on('message', message => {
 
             case 'wiki':
                 wikiSearch(stringArray, message)
+                break
+
+            case 'registerInsult':
+                registerInsult(stringArray, message)
                 break
 
             case 'alex':
